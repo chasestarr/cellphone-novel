@@ -4,6 +4,8 @@
   "description": "node application for managing, and delivering cellphone novels",
   "main": "app.js",
   "dependencies": {
+    "cons": "0.0.2",
+    "consolidate": "^0.14.0",
     "express": "^4.13.4",
     "mongoose": "^4.4.11",
     "phone": "^1.0.5",
