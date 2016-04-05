@@ -14,10 +14,10 @@ app.set('view engine', 'html');
 app.get('/', function(req, res){
   res.render('index', {});
 
-  let phoneNumber = req.query.phone;
+  let phoneNumber = phone(req.query.phone)[0];
   if(phoneNumber){
     client.messages.create({
-      to: phoneNumber,
+      to: phone(phoneNumber)[0],
       from: '+18133080308',
       body: 'hello world',
     }, function(err, message) {
