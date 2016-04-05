@@ -1,0 +1,27 @@
+{
+  "name": "cellphone-novel",
+  "version": "1.0.0",
+  "description": "node application for managing, and delivering cellphone novels",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.13.4",
+    "mongoose": "^4.4.11",
+    "phone": "^1.0.5",
+    "swig": "^1.4.2",
+    "twilio": "^2.9.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chasestarr/cellphone-novel.git"
+  },
+  "author": "chase starr",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chasestarr/cellphone-novel/issues"
+  },
+  "homepage": "https://github.com/chasestarr/cellphone-novel#readme"
+}
