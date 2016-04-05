@@ -4,15 +4,25 @@ const express = require('express');
 const cons = require('consolidate');
 const swig = require('swig');
 const phone = require('phone');
-const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID,process.env.TWILIO_AUTH_TOKEN);
+const TWILIO_ACCOUNT_SID = require('./config.js').accountSid;
+const TWILIO_AUTH_TOKEN = require('./config.js').authToken;
+const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const app = express();
 
 app.engine('html', cons.swig);
 app.set('view engine', 'html');
 app.get('/', function(req, res){
   res.render('index', {});
-  if(req.query.phone){
-    console.log(phone(req.query.phone)[0]);
+
+  let phoneNumber = req.query.phone;
+  if(phoneNumber){
+    client.messages.create({
+      to: phoneNumber,
+      from: '+18133080308',
+      body: 'hello world',
+    }, function(err, message) {
+      console.log(message.sid);
+    });
   }
 });
 
