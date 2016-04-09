@@ -1,2 +1,2 @@
 # Verso
-node application for managing, and delivering cellphone novels
+Node application for managing, and delivering cellphone novels
