@@ -64,16 +64,14 @@ function addUser(usr){
 }
 
 function userLoop(){
-  return new Promise((resolve, reject) => {
-    let User = schema.users;
-    User.find({}, (e, users) => {
-      users.forEach((u) => {
-        let userId = u.userId;
-        let current = u.currentEntry;
-        readEntry(current).then((entryObj) => {
-          smsEntry(userId, entryObj.text);
+  let User = schema.users;
+  User.find({}, (e, users) => {
+    users.forEach((u) => {
+      if(u.active){
+        readEntry(u.currentEntry).then((entryObj) => {
+          smsEntry(u.userId, entryObj);
         });
-      });
+      }
     });
   });
 }
@@ -101,13 +99,12 @@ function readEntry(id){
   });
 }
 
-function smsEntry(userId, text){
+function smsEntry(userId, entry){
   client.messages.create({
     to: userId,
     from: TWILIO_PHONE_NUMBER,
-    body: text,
+    body: entry.text,
   }, function(e, message) {
-    console.log(message);
-    console.log('message to ', userId, ' successful');
+    console.log('message to ', message.to, ' successful');
   });
 }
