@@ -2,7 +2,7 @@
 
 module.exports = function(mongoose){
   let userSchema = mongoose.Schema({
-    userNumber: Number,
+    userId: Number,
     currentEntry: Number,
     active: Boolean
   });

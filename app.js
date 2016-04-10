@@ -5,6 +5,8 @@ const express = require('express');
 const cons = require('consolidate');
 const swig = require('swig');
 const phone = require('phone');
+const moment = require('moment');
+const schedule = require('node-schedule');
 const mongoose = require('mongoose');
 const schema = require('./db/databaseSchema');
 const TWILIO_ACCOUNT_SID = require('./config.js').TWILIO_ACCOUNT_SID;
@@ -14,6 +16,7 @@ const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const app = express();
 
 const SECOND = 1000;
+moment().format();
 
 mongoose.connect(dbConn);
 const db = mongoose.connection;
@@ -23,32 +26,32 @@ app.set('view engine', 'html');
 app.get('/', function(req, res){
   res.render('index', {});
 
-  // let phoneNumber = phone(req.query.phone)[0];
-  // if(phoneNumber){
-  //   client.messages.create({
-  //     to: phone(phoneNumber)[0],
-  //     from: TWILIO_PHONE_NUMBER,
-  //     body: 'Hay Boo ;)',
-  //   }, function(err, message) {
-  //     console.log(message.sid);
-  //   });
-  // }
-
+  let entry = req.query.entry;
+  let delayTime = req.query.delay;
   let phoneNumber = phone(req.query.phone)[0];
-  if(phoneNumber) addUser(phoneNumber);
+  if(phoneNumber){
+    addUser(phoneNumber);
+  }
+  if(entry){
+    addEntry(entry, delayTime);
+  }
 });
 
 app.listen(port, function(){
   console.log('server running on port: ' + port);
 });
 
-function addUser(u){
+schedule.scheduleJob('*/1 * * * *', function(){
+  userLoop();
+});
+
+function addUser(usr){
   return new Promise((resolve, reject) => {
     let User = schema.users;
-    User.findOne({userNumber: u}, (e, user) => {
+    User.findOne({userId: usr}, (e, user) => {
       if(e) reject(e);
       if(!user){
-        let userItem = User({userNumber: u, currentEntry: 0, active: true});
+        let userItem = User({userId: usr, currentEntry: 0, active: true});
         userItem.save((e, editedDoc) => {
           if(e) return console.error(e);
           resolve();
@@ -60,15 +63,51 @@ function addUser(u){
   });
 }
 
-function addEntry(textBody){
+function userLoop(){
+  return new Promise((resolve, reject) => {
+    let User = schema.users;
+    User.find({}, (e, users) => {
+      users.forEach((u) => {
+        let userId = u.userId;
+        let current = u.currentEntry;
+        readEntry(current).then((entryObj) => {
+          smsEntry(userId, entryObj.text);
+        });
+      });
+    });
+  });
+}
+
+function addEntry(textBody, delayTime){
   return new Promise((resolve, reject) => {
     let Entry = schema.entries;
     Entry.count({}, (e, count) => {
-      let entryItem = Entry({entryId: count, text: textBody, delay: 10 * SECOND});
+      let entryItem = Entry({entryId: count, text: textBody, delay: delayTime * SECOND});
       entryItem.save((e, editedDoc) => {
         if(e) return console.error(e);
         resolve();
       });
     });
+  });
+}
+
+function readEntry(id){
+  return new Promise((resolve, reject) => {
+    let Entry = schema.entries;
+    Entry.findOne({entryId: id}, (e, entry) => {
+      if(e) return console.error(e);
+      resolve(entry);
+    });
+  });
+}
+
+function smsEntry(userId, text){
+  client.messages.create({
+    to: userId,
+    from: TWILIO_PHONE_NUMBER,
+    body: text,
+  }, function(e, message) {
+    console.log(message);
+    console.log('message to ', userId, ' successful');
   });
 }
