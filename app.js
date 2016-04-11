@@ -15,7 +15,6 @@ const TWILIO_PHONE_NUMBER = require('./config.js').TWILIO_PHONE_NUMBER;
 const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const app = express();
 
-const SECOND = 1000;
 moment().format();
 
 mongoose.connect(dbConn);
@@ -27,7 +26,11 @@ app.get('/', function(req, res){
   res.render('index', {});
 
   let entry = req.query.entry;
-  let delayTime = req.query.delay;
+  let delayTime = {
+    days: req.query.days,
+    hour: req.query.hour,
+    minute: req.query.minute
+  };
   let phoneNumber = phone(req.query.phone)[0];
   if(phoneNumber){
     addUser(phoneNumber);
@@ -64,12 +67,18 @@ function addUser(usr){
 }
 
 function userLoop(){
+  let now = moment();
   let User = schema.users;
   User.find({}, (e, users) => {
     users.forEach((u) => {
       if(u.active){
         readEntry(u.currentEntry).then((entryObj) => {
-          smsEntry(u.userId, entryObj);
+          let delay = entryObj.delay;
+          let date = moment().day(delay.days).hour(delay.hour).minute(delay.minute);
+          if(date.isSameOrBefore(now)){
+            smsEntry(u.userId, entryObj);
+            // u.update
+          }
         });
       }
     });
@@ -80,9 +89,18 @@ function addEntry(textBody, delayTime){
   return new Promise((resolve, reject) => {
     let Entry = schema.entries;
     Entry.count({}, (e, count) => {
-      let entryItem = Entry({entryId: count, text: textBody, delay: delayTime * SECOND});
+      let entryItem = Entry({
+        entryId: count,
+        text: textBody,
+        delay: {
+          days: delayTime.days,
+          hour: delayTime.hour,
+          minute: delayTime.minute
+        }
+      });
       entryItem.save((e, editedDoc) => {
         if(e) return console.error(e);
+        console.log('new entry added:', text);
         resolve();
       });
     });
