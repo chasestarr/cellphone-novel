@@ -68,16 +68,18 @@ function addUser(usr){
 
 function userLoop(){
   let now = moment();
+  console.log('now', now._d);
   let User = schema.users;
   User.find({}, (e, users) => {
     users.forEach((u) => {
       if(u.active){
         readEntry(u.currentEntry).then((entryObj) => {
           let delay = entryObj.delay;
-          let date = moment().day(delay.days).hour(delay.hour).minute(delay.minute);
+          let date = moment().hour(delay.hour).minute(delay.minute);
+          date.add(delay.days, 'd');
+          console.log('date:', date._d);
           if(date.isSameOrBefore(now)){
             smsEntry(u.userId, entryObj);
-            // u.update
           }
         });
       }
@@ -100,7 +102,7 @@ function addEntry(textBody, delayTime){
       });
       entryItem.save((e, editedDoc) => {
         if(e) return console.error(e);
-        console.log('new entry added:', text);
+        console.log('new entry added:', textBody);
         resolve();
       });
     });
@@ -117,6 +119,16 @@ function readEntry(id){
   });
 }
 
+function incCurrent(id, nextEntry){
+  return new Promise((resolve, reject) => {
+    let User = schema.users;
+    User.update({userId: id}, {currentEntry: nextEntry}, (e, editedDoc) => {
+      if(e) return console.error(e);
+      resolve();
+    });
+  });
+}
+
 function smsEntry(userId, entry){
   client.messages.create({
     to: userId,
@@ -124,5 +136,7 @@ function smsEntry(userId, entry){
     body: entry.text,
   }, function(e, message) {
     console.log('message to ', message.to, ' successful');
+    let nextEntry = entry.entryId + 1;
+    incCurrent(userId, nextEntry);
   });
 }
