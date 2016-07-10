@@ -5,13 +5,13 @@ const moment = require('moment');
 const sms = require('./send_message');
 
 moment().format();
-console.log('utils');
 
 module.exports = {
   addUser: addUser,
   addEntry: addEntry,
   userLoop: loop,
-  readEntry: readEntry
+  readEntry: readEntry,
+  readEntries: readEntries
 };
 
 function addUser(usr){
@@ -91,6 +91,16 @@ function incCurrent(id, nextEntry){
     User.update({userId: id}, {currentEntry: nextEntry}, (e, editedDoc) => {
       if(e) return console.error(e);
       resolve();
+    });
+  });
+}
+
+function readEntries(){
+  return new Promise((resolve, reject) => {
+    let Entry = schema.entries;
+    Entry.find({}, (e, docs) =>{
+      if(e) return console.error(e);
+      resolve(docs);
     });
   });
 }

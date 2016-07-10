@@ -2,6 +2,7 @@
 const TWILIO_ACCOUNT_SID = require('./config.js').TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN = require('./config.js').TWILIO_AUTH_TOKEN;
 const TWILIO_PHONE_NUMBER = require('./config.js').TWILIO_PHONE_NUMBER;
+
 const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 module.exports = function(userId, entry, cb){

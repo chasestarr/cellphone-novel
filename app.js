@@ -14,8 +14,16 @@ mongoose.connect(dbConn);
 
 app.engine('html', cons.swig);
 app.set('view engine', 'html');
-app.get('/', function(req, res){
-  res.render('index', {});
+
+// Routes
+app.get('/', userUtilities);
+app.get('/admin', adminUtilities);
+app.get('/sms/user', userSignUp);
+
+function adminUtilities(req, res){
+  dbUtils.readEntries().then((entries) => {
+    res.render('admin', {entries: entries});
+  })
 
   let entry = req.query.entry;
   let delayTime = {
@@ -23,14 +31,22 @@ app.get('/', function(req, res){
     hour: req.query.hour,
     minute: req.query.minute
   };
+  if(entry){
+    dbUtils.addEntry(entry, delayTime);
+  }
+}
+
+function userUtilities(req, res){
+  res.render('index', {});
   let phoneNumber = phone(req.query.phone)[0];
   if(phoneNumber){
     dbUtils.addUser(phoneNumber);
   }
-  if(entry){
-    dbUtils.addEntry(entry, delayTime);
-  }
-});
+}
+
+function userSignUp(req, res){
+  console.log('received message');
+}
 
 app.listen(port, function(){
   console.log('server running on port: ' + port);

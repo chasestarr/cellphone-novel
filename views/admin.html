@@ -1,0 +1,105 @@
+<head>
+  <style>
+    #leftPage{
+      position: abolute;
+      top:0;
+      left: 0;
+      width: 50%;
+    }
+    #rightPage{
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+    }
+    input[type="text"] {
+      display: block;
+      margin: 0;
+      width: 100%;
+      font-family: "Open Sans", sans-serif;
+      font-size: 18px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      -webkit-border-radius: none;
+      -moz-border-radius: none;
+      -ms-border-radius: none;
+      -o-border-radius: none;
+      border-radius: none;
+    }
+    input[type="text"]:focus {
+      outline: none;
+    }
+
+    /* lists */
+    ul.input-list {
+      list-style: none;
+      margin: 0 -10px;
+      padding: 0;
+    }
+    ul.input-list li {
+      display: block;
+      padding: 0 10px;
+      width: 50%;
+      float: left;
+    }
+
+    @media all and (max-width: 800px) {
+      ul.input-list {
+        margin: 0;
+      }
+      ul.input-list li {
+        padding: 0;
+        width: 100%;
+        float: none;
+        margin-bottom: 10px;
+      }
+    }
+    #heading{
+      font-family: 'Oswald', sans-serif;
+      color: midnightblue;
+    }
+    .style-4 input[type="text"] {
+      padding: 10px;
+      border: none;
+      border-bottom: solid 2px #c9c9c9;
+      -webkit-transition: border 0.3s;
+      -moz-transition: border 0.3s;
+      -o-transition: border 0.3s;
+      transition: border 0.3s;
+    }
+    .style-4 input[type="text"]:focus, .style-4 input[type="text"].focus {
+      border-bottom: solid 2px #969696;
+    }
+  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body>
+  <form id="leftPage">
+    <ul class="input-list style-4 clearfix">
+      <li>
+    <input type="text" placeholder='Enter a new entry' name='entry'>
+    <br>
+    <input type="text" placeholder='How many days to delay' name='days'>
+    <br>
+    <input type="text" placeholder='Hour to deliver' name='hour'>
+    <input type="text" placeholder='Minute to deliver' name='minute'>
+    <br>
+    <button type="submit" value="Submit">
+     <i class="fa fa-share" aria-hidden="true"> Submit</i>
+    </button>
+      </li>
+    </ul>
+  </form>
+
+  <div id="rightPage">
+    {% for entry in entries %}
+      <b>{{entry.entryId}}</b> {{entry.text}}
+      <br>
+      <br>
+    {% endfor %}
+  </div>
+</body>
